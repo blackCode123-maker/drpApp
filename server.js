@@ -10,6 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.static('public'));
 
+// Optional: explicit route for root
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
 // Configure multer for handling form data
 const upload = multer();
 
