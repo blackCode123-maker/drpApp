@@ -1,6 +1,6 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
-const bodyParser = require('body-parser');
+const multer = require('multer');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -8,11 +8,10 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Serve static files
 app.use(express.static('public'));
+
+// Configure multer for handling form data
+const upload = multer();
 
 // Email transporter setup
 const transporter = nodemailer.createTransport({
@@ -33,7 +32,7 @@ transporter.verify(function(error, success) {
 });
 
 // Handle form submission
-app.post('/submit-form', async (req, res) => {
+app.post('/send-email', upload.none(), async (req, res) => {
     try {
         const {
             firstName,
@@ -62,13 +61,14 @@ app.post('/submit-form', async (req, res) => {
                         <p><strong>Name:</strong> ${firstName} ${lastName}</p>
                         <p><strong>Email:</strong> ${email}</p>
                         <p><strong>Phone:</strong> ${phone}</p>
-                        <p><strong>Address:</strong> ${address}</p>
+                        
+                        <h3 style="color: #2d3436; margin-top: 20px;">Address Information</h3>
+                        <p><strong>Street Address:</strong> ${address}</p>
                         <p><strong>City:</strong> ${city}</p>
                         <p><strong>State:</strong> ${state}</p>
                         <p><strong>ZIP Code:</strong> ${zipCode}</p>
-                    </div>
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <h3 style="color: #2d3436;">Vehicle Information</h3>
+
+                        <h3 style="color: #2d3436; margin-top: 20px;">Vehicle Information</h3>
                         <p><strong>Car Make:</strong> ${carMake}</p>
                         <p><strong>Car Model:</strong> ${carModel}</p>
                         <p><strong>Car Year:</strong> ${carYear}</p>
@@ -82,7 +82,7 @@ app.post('/submit-form', async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: 'Thank you! Your application has been submitted successfully.'
+            message: 'Thank you! Your application has been submitted successfully. We will contact you soon.'
         });
 
     } catch (error) {
