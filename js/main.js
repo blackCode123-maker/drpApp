@@ -91,81 +91,92 @@ document.addEventListener("DOMContentLoaded", function () {
   // Form validation
   function validateForm() {
     let isValid = true;
-
+    let firstError = null;
+    
     // Validate required fields
-    const inputs = form.querySelectorAll("input[required]");
-    inputs.forEach((input) => {
-      const errorDiv = input.parentElement.querySelector(".error-message");
-      if (!input.value.trim()) {
-        input.classList.add("error");
-        if (errorDiv) {
-          errorDiv.textContent = "This field is required";
-          errorDiv.style.display = "block";
+    const inputs = form.querySelectorAll('input[required]');
+    inputs.forEach(input => {
+        const errorDiv = input.parentElement.querySelector('.error-message');
+        if (!input.value.trim()) {
+            input.classList.add('error');
+            if (errorDiv) {
+                errorDiv.textContent = `${input.previousElementSibling.textContent.replace(' *', '')} is required`;
+                errorDiv.style.display = 'block';
+            }
+            if (!firstError) firstError = input;
+            isValid = false;
+        } else {
+            input.classList.remove('error');
+            if (errorDiv) {
+                errorDiv.textContent = '';
+                errorDiv.style.display = 'none';
+            }
         }
-        isValid = false;
-      } else {
-        input.classList.remove("error");
-        if (errorDiv) {
-          errorDiv.textContent = "";
-          errorDiv.style.display = "none";
-        }
-      }
     });
 
     // Validate email
-    const emailInput = form.querySelector("#email");
-    const emailError =
-      emailInput?.parentElement.querySelector(".error-message");
-    if (
-      emailInput?.value &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)
-    ) {
-      emailInput.classList.add("error");
-      if (emailError) {
-        emailError.textContent = "Please enter a valid email address";
-        emailError.style.display = "block";
-      }
-      isValid = false;
+    const emailInput = form.querySelector('#email');
+    const emailError = emailInput?.parentElement.querySelector('.error-message');
+    if (emailInput?.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+        emailInput.classList.add('error');
+        if (emailError) {
+            emailError.textContent = 'Please enter a valid email address';
+            emailError.style.display = 'block';
+        }
+        if (!firstError) firstError = emailInput;
+        isValid = false;
     }
 
     // Validate phone
-    if (phoneInput && !phoneInput.isValidNumber()) {
-      const phoneError =
-        phoneElement?.parentElement.querySelector(".error-message");
-      phoneElement.classList.add("error");
-      if (phoneError) {
-        phoneError.textContent = "Please enter a valid phone number";
-        phoneError.style.display = "block";
-      }
-      isValid = false;
-    }
-
-    // Validate ZIP code
-    const zipInput = form.querySelector("#zipCode");
-    const zipError = zipInput?.parentElement.querySelector(".error-message");
-    if (zipInput?.value && !/^\d{5}(-\d{4})?$/.test(zipInput.value)) {
-      zipInput.classList.add("error");
-      if (zipError) {
-        zipError.textContent = "Please enter a valid ZIP code";
-        zipError.style.display = "block";
-      }
-      isValid = false;
+    if (!phoneInput || !phoneElement.value.trim()) {  // Check if empty
+        const phoneError = phoneElement?.parentElement.querySelector('.error-message');
+        phoneElement.classList.add('error');
+        if (phoneError) {
+            phoneError.textContent = 'Phone number is required';
+            phoneError.style.display = 'block';
+        }
+        if (!firstError) firstError = phoneElement;
+        isValid = false;
+    } else if (!phoneInput.isValidNumber()) {  // Check if valid format
+        const phoneError = phoneElement?.parentElement.querySelector('.error-message');
+        phoneElement.classList.add('error');
+        if (phoneError) {
+            phoneError.textContent = 'Please enter a valid phone number';
+            phoneError.style.display = 'block';
+        }
+        if (!firstError) firstError = phoneElement;
+        isValid = false;
     }
 
     // Validate car year
-    const yearInput = form.querySelector("#carYear");
-    const yearError = yearInput?.parentElement.querySelector(".error-message");
+    const yearInput = form.querySelector('#carYear');
+    const yearError = yearInput?.parentElement.querySelector('.error-message');
     const currentYear = new Date().getFullYear();
     if (yearInput?.value) {
-      const year = parseInt(yearInput.value);
-      if (isNaN(year) || year < 1900 || year > currentYear + 1) {
-        yearInput.classList.add("error");
-        if (yearError) {
-          yearError.textContent = "Please enter a valid car year";
-          yearError.style.display = "block";
+        const year = parseInt(yearInput.value);
+        if (isNaN(year) || year < 1900 || year > currentYear + 1) {
+            yearInput.classList.add('error');
+            if (yearError) {
+                yearError.textContent = `Please enter a valid year between 1900 and ${currentYear + 1}`;
+                yearError.style.display = 'block';
+            }
+            if (!firstError) firstError = yearInput;
+            isValid = false;
         }
-        isValid = false;
-      }
+    }
+
+    // Focus and scroll to first error
+    if (firstError) {
+        firstError.focus();
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Update SweetAlert message to be more specific
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: `Please check ${firstError.previousElementSibling.textContent.replace(' *', '')}`,
+            confirmButtonColor: '#c81533'
+        });
     }
 
     return isValid;
