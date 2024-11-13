@@ -11,6 +11,9 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Serve static files
+app.use(express.static('public'));
+
 // Email transporter setup
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -20,7 +23,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Test email
+// Test email configuration
 transporter.verify(function(error, success) {
     if (error) {
         console.log('Email server error:', error);
@@ -37,26 +40,40 @@ app.post('/submit-form', async (req, res) => {
             lastName,
             email,
             phone,
-            country,
-            state,
+            address,
             city,
-            zipCode
+            state,
+            zipCode,
+            carMake,
+            carModel,
+            carYear
         } = req.body;
 
         // Email content
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.EMAIL_USER,
-            subject: 'New Form Submission',
+            subject: 'New Dr Pepper Vehicle Wrap Application',
             html: `
-                <h2>New Form Submission</h2>
-                <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Phone:</strong> ${phone}</p>
-                <p><strong>Country:</strong> ${country}</p>
-                <p><strong>State:</strong> ${state}</p>
-                <p><strong>City:</strong> ${city}</p>
-                <p><strong>ZIP Code:</strong> ${zipCode}</p>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #c81533;">New Vehicle Wrap Application</h2>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #2d3436;">Personal Information</h3>
+                        <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Phone:</strong> ${phone}</p>
+                        <p><strong>Address:</strong> ${address}</p>
+                        <p><strong>City:</strong> ${city}</p>
+                        <p><strong>State:</strong> ${state}</p>
+                        <p><strong>ZIP Code:</strong> ${zipCode}</p>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #2d3436;">Vehicle Information</h3>
+                        <p><strong>Car Make:</strong> ${carMake}</p>
+                        <p><strong>Car Model:</strong> ${carModel}</p>
+                        <p><strong>Car Year:</strong> ${carYear}</p>
+                    </div>
+                </div>
             `
         };
 
