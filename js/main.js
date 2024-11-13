@@ -67,93 +67,159 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Form Handling
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('applicationForm');
-  if (!form) return;
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("Script loaded");
+
+  const form = document.getElementById("applicationForm");
+  if (!form) {
+    console.error("Form not found");
+    return;
+  }
 
   // Initialize phone input
-  const phoneInput = window.intlTelInput(document.querySelector("#phone"), {
-    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-    preferredCountries: ["us", "gb", "ca"],
-    separateDialCode: true
-  });
+  let phoneInput;
+  const phoneElement = document.querySelector("#phone");
+  if (phoneElement) {
+    phoneInput = window.intlTelInput(phoneElement, {
+      utilsScript:
+        "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+      preferredCountries: ["us", "gb", "ca"],
+      separateDialCode: true,
+    });
+  }
 
   // Form validation
   function validateForm() {
     let isValid = true;
-    const inputs = form.querySelectorAll('input[required]');
-    
-    inputs.forEach(input => {
-      const errorElement = input.nextElementSibling;
+
+    // Validate required fields
+    const inputs = form.querySelectorAll("input[required]");
+    inputs.forEach((input) => {
+      const errorDiv = input.parentElement.querySelector(".error-message");
       if (!input.value.trim()) {
-        input.classList.add('error');
-        errorElement.textContent = 'This field is required';
+        input.classList.add("error");
+        if (errorDiv) {
+          errorDiv.textContent = "This field is required";
+          errorDiv.style.display = "block";
+        }
         isValid = false;
       } else {
-        input.classList.remove('error');
-        errorElement.textContent = '';
+        input.classList.remove("error");
+        if (errorDiv) {
+          errorDiv.textContent = "";
+          errorDiv.style.display = "none";
+        }
       }
     });
 
     // Validate email
-    const emailInput = form.querySelector('#email');
-    if (emailInput.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
-      emailInput.classList.add('error');
-      emailInput.nextElementSibling.textContent = 'Please enter a valid email address';
+    const emailInput = form.querySelector("#email");
+    const emailError =
+      emailInput?.parentElement.querySelector(".error-message");
+    if (
+      emailInput?.value &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)
+    ) {
+      emailInput.classList.add("error");
+      if (emailError) {
+        emailError.textContent = "Please enter a valid email address";
+        emailError.style.display = "block";
+      }
       isValid = false;
     }
 
     // Validate phone
-    if (!phoneInput.isValidNumber()) {
-      const phoneElement = form.querySelector('#phone');
-      phoneElement.classList.add('error');
-      phoneElement.nextElementSibling.textContent = 'Please enter a valid phone number';
+    if (phoneInput && !phoneInput.isValidNumber()) {
+      const phoneError =
+        phoneElement?.parentElement.querySelector(".error-message");
+      phoneElement.classList.add("error");
+      if (phoneError) {
+        phoneError.textContent = "Please enter a valid phone number";
+        phoneError.style.display = "block";
+      }
       isValid = false;
+    }
+
+    // Validate ZIP code
+    const zipInput = form.querySelector("#zipCode");
+    const zipError = zipInput?.parentElement.querySelector(".error-message");
+    if (zipInput?.value && !/^\d{5}(-\d{4})?$/.test(zipInput.value)) {
+      zipInput.classList.add("error");
+      if (zipError) {
+        zipError.textContent = "Please enter a valid ZIP code";
+        zipError.style.display = "block";
+      }
+      isValid = false;
+    }
+
+    // Validate car year
+    const yearInput = form.querySelector("#carYear");
+    const yearError = yearInput?.parentElement.querySelector(".error-message");
+    const currentYear = new Date().getFullYear();
+    if (yearInput?.value) {
+      const year = parseInt(yearInput.value);
+      if (isNaN(year) || year < 1900 || year > currentYear + 1) {
+        yearInput.classList.add("error");
+        if (yearError) {
+          yearError.textContent = "Please enter a valid car year";
+          yearError.style.display = "block";
+        }
+        isValid = false;
+      }
     }
 
     return isValid;
   }
 
   // Form submission
-  form.addEventListener('submit', async function(e) {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
-    
+    console.log("Form submitted");
+
     if (!validateForm()) {
       Swal.fire({
-        icon: 'error',
-        title: 'Validation Error',
-        text: 'Please check all required fields',
-        confirmButtonColor: '#c81533'
+        icon: "error",
+        title: "Validation Error",
+        text: "Please check all required fields",
+        confirmButtonColor: "#c81533",
       });
       return;
     }
 
-    // Show loading state
-    const submitBtn = form.querySelector('.submit-btn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const btnLoader = submitBtn.querySelector('.btn-loader');
-    
-    btnText.style.opacity = '0';
-    btnLoader.style.display = 'block';
-    submitBtn.disabled = true;
+    const submitBtn = form.querySelector(".submit-btn");
+    const btnText = submitBtn.querySelector(".btn-text");
+    const btnLoader = submitBtn.querySelector(".btn-loader");
+
+    if (btnText && btnLoader) {
+      btnText.style.opacity = "0";
+      btnLoader.style.display = "block";
+      submitBtn.disabled = true;
+    }
 
     try {
       const formData = new FormData(form);
-      formData.append('phone', phoneInput.getNumber());
+      if (phoneInput) {
+        formData.append("phone", phoneInput.getNumber());
+      }
 
-      const response = await fetch('/send-email', {
-        method: 'POST',
-        body: formData
+      // Log form data for debugging
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ": " + pair[1]);
+      }
+
+      const response = await fetch("http://localhost:3000/send-email", {
+        method: "POST",
+        body: formData,
       });
 
       const data = await response.json();
 
       if (data.success) {
         Swal.fire({
-          icon: 'success',
-          title: 'Success!',
+          icon: "success",
+          title: "Success!",
           text: data.message,
-          confirmButtonColor: '#c81533'
+          confirmButtonColor: "#c81533",
         });
         form.reset();
         phoneInput.destroy();
@@ -161,19 +227,21 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         throw new Error(data.message);
       }
-
     } catch (error) {
+      console.error("Error:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: error.message || 'Something went wrong. Please try again.',
-        confirmButtonColor: '#c81533'
+        icon: "error",
+        title: "Oops...",
+        text: error.message || "Something went wrong. Please try again.",
+        confirmButtonColor: "#c81533",
       });
     } finally {
       // Reset button state
-      btnText.style.opacity = '1';
-      btnLoader.style.display = 'none';
-      submitBtn.disabled = false;
+      if (btnText && btnLoader) {
+        btnText.style.opacity = "1";
+        btnLoader.style.display = "none";
+        submitBtn.disabled = false;
+      }
     }
   });
 
@@ -181,14 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
   function initializePhoneInput() {
     const phoneElement = document.querySelector("#phone");
     if (phoneElement) {
-      window.intlTelInput(phoneElement, {
-        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+      return window.intlTelInput(phoneElement, {
+        utilsScript:
+          "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
         preferredCountries: ["us", "gb", "ca"],
-        separateDialCode: true
+        separateDialCode: true,
       });
     }
   }
-
-  // Initialize on load
-  initializePhoneInput();
 });

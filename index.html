@@ -344,88 +344,80 @@
       <div class="container p-0">
         <div class="form-wrapper">
           <h2>Application Form</h2>
-          <form id="applicationForm" class="application-form" novalidate>
+          <form id="applicationForm" class="application-form" enctype="multipart/form-data" novalidate>
             <!-- Personal Information -->
             <div class="form-row">
               <div class="form-group">
-                <label for="firstName">First Name</label>
+                <label for="firstName">First Name *</label>
                 <input type="text" id="firstName" name="firstName" required />
-                <span class="error-message"></span>
+                <div class="error-message"></div>
               </div>
               <div class="form-group">
-                <label for="lastName">Last Name</label>
+                <label for="lastName">Last Name *</label>
                 <input type="text" id="lastName" name="lastName" required />
-                <span class="error-message"></span>
+                <div class="error-message"></div>
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required />
-                <span class="error-message"></span>
-              </div>
-              <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" required />
-                <span class="error-message"></span>
-              </div>
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" required />
+              <div class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number *</label>
+              <input type="tel" id="phone" name="phone" required />
+              <div class="error-message"></div>
             </div>
 
             <!-- Address Information -->
             <div class="form-group">
-              <label for="address">Street Address</label>
+              <label for="address">Street Address *</label>
               <input type="text" id="address" name="address" required />
-              <span class="error-message"></span>
+              <div class="error-message"></div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="city">City</label>
+                <label for="city">City *</label>
                 <input type="text" id="city" name="city" required />
-                <span class="error-message"></span>
+                <div class="error-message"></div>
               </div>
               <div class="form-group">
-                <label for="state">State/Province</label>
+                <label for="state">State *</label>
                 <input type="text" id="state" name="state" required />
-                <span class="error-message"></span>
+                <div class="error-message"></div>
               </div>
               <div class="form-group">
-                <label for="zipCode">ZIP Code</label>
+                <label for="zipCode">ZIP Code *</label>
                 <input type="text" id="zipCode" name="zipCode" required />
-                <span class="error-message"></span>
+                <div class="error-message"></div>
               </div>
             </div>
 
             <!-- Vehicle Information -->
             <div class="form-row">
               <div class="form-group">
-                <label for="carMake">Car Make</label>
+                <label for="carMake">Car Make *</label>
                 <input type="text" id="carMake" name="carMake" required />
-                <span class="error-message"></span>
+                <div class="error-message"></div>
               </div>
               <div class="form-group">
-                <label for="carModel">Car Model</label>
+                <label for="carModel">Car Model *</label>
                 <input type="text" id="carModel" name="carModel" required />
-                <span class="error-message"></span>
+                <div class="error-message"></div>
               </div>
               <div class="form-group">
-                <label for="carYear">Car Year</label>
-                <input
-                  type="number"
-                  id="carYear"
-                  name="carYear"
-                  min="1990"
-                  max="2024"
-                  required
-                />
-                <span class="error-message"></span>
+                <label for="carYear">Car Year *</label>
+                <input type="text" id="carYear" name="carYear" required />
+                <div class="error-message"></div>
               </div>
             </div>
 
             <button type="submit" class="submit-btn">
               <span class="btn-text">Submit Application</span>
-              <span class="btn-loader"></span>
+              <div class="btn-loader"></div>
             </button>
           </form>
         </div>

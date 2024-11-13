@@ -34,6 +34,8 @@ transporter.verify(function(error, success) {
 // Handle form submission
 app.post('/send-email', upload.none(), async (req, res) => {
     try {
+        console.log('Received form data:', req.body); // Debug log
+
         const {
             firstName,
             lastName,
@@ -79,6 +81,7 @@ app.post('/send-email', upload.none(), async (req, res) => {
 
         // Send email
         await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully'); // Debug log
 
         res.status(200).json({
             success: true,
